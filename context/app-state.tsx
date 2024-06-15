@@ -2,7 +2,11 @@
 
 import React, { createContext, PropsWithChildren, useContext, useState } from 'react'
 
-const AppContext = createContext()
+interface IAppContext {
+  currentMode: string;
+  setCurrentMode: React.Dispatch<React.SetStateAction<string>>
+}
+const AppContext = createContext({} as IAppContext)
 
 export const useAppContext = () => useContext(AppContext)
 
