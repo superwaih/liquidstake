@@ -13,7 +13,7 @@ const Navbar = () => {
             <MaxwidthWrapper className='flex text-white items-center justify-between'>
                 <a href={'https://liquidinvest.io/#overview'}>
                     <Image
-                        src={'/images/logo.png'}
+                        src={'/images/logo.PNG'}
                         alt={'logo'}
                         width={30}
                         height={30}
