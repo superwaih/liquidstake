@@ -25,7 +25,7 @@ export default function RootLayout({
 <WalletLayout>
 
           {/* <Navbar /> */}
-         <div className="h-full bg-grad  min-h-screen">
+         <div className="h-full bg-bgApp bg-cover  min-h-screen">
          {children}
          </div>
 </WalletLayout>

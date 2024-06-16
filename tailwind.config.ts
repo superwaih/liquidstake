@@ -20,6 +20,8 @@ const config = {
     extend: {
       backgroundImage: {
         'wavy-gray': "url('/wavy-bg.svg')",
+        'bgApp': "url('/images/bg.png')",
+
       },
       colors: {
         border: "hsl(var(--border))",
