@@ -1,15 +1,62 @@
 "use client"
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
 const UnstakingForm = () => {
+    const { connection } = useConnection();
+    const { publicKey, sendTransaction } = useWallet();
     const [amount, setAmount] = useState('');
-    const stakedBalance = 10000; // Example staked balance
+    const [stakedBalance, setStakedBalance] = useState(0);
+    const [unstakedBalance, setUnstakedBalance] = useState(2000); // Example balance, replace with actual logic
+    const [hasStaked, setHasStaked] = useState(false);
 
-    const handleUnstake = () => {
-        // Implement unstaking logic here
-        console.log(`Unstaking ${amount}`);
+    useEffect(() => {
+        if (publicKey) {
+            // Fetch the staked balance for the user from your staking program
+            // This is a placeholder logic; replace it with actual fetch logic
+            const fetchStakedBalance = async () => {
+                const balance = 10000; // Replace with actual logic
+                setStakedBalance(balance);
+                setHasStaked(balance > 0);
+            };
+            fetchStakedBalance();
+        }
+    }, [publicKey]);
+
+    const handleUnstake = async () => {
+        if (!publicKey || !amount) return;
+
+        const amountToUnstake = parseInt(amount, 10);
+
+        // Implement the actual unstaking logic here
+        console.log(`Unstaking ${amountToUnstake}`);
+
+        try {
+            // Replace the following with actual transaction creation and sending logic
+            const transaction = new Transaction().add(
+                // Add instructions to unstake tokens
+                // This is a placeholder instruction; replace it with actual logic
+                SystemProgram.transfer({
+                    fromPubkey: publicKey,
+                    toPubkey: new PublicKey("AdminPublicKeyHere"), // Replace with actual admin public key
+                    lamports: amountToUnstake,
+                })
+            );
+
+            const signature = await sendTransaction(transaction, connection);
+            await connection.confirmTransaction(signature, "processed");
+
+            console.log("Unstaking successful");
+            // Update the UI with the new balances
+            setStakedBalance(stakedBalance - amountToUnstake);
+            setHasStaked(stakedBalance - amountToUnstake > 0);
+        } catch (error) {
+            console.error("Unstaking failed", error);
+        }
     };
 
     const setMaxAmount = () => {
@@ -27,7 +74,7 @@ const UnstakingForm = () => {
                 </div>
                 <div className="flex justify-between">
                     <h3 className="text-gray-500 font-medium">Unstaked Balance:</h3>
-                    <p className="font-bold text-black text-lg md:text-xl">2,000</p>
+                    <p className="font-bold text-black text-lg md:text-xl">{unstakedBalance.toLocaleString()}</p>
                 </div>
             </div>
 
@@ -53,11 +100,21 @@ const UnstakingForm = () => {
                 </div>
             </div>
 
-            <Button className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-bold text-lg rounded-md shadow-md transition-all duration-300" onClick={handleUnstake}>
-                Unstake Tokens
-            </Button>
+            {hasStaked ? (
+                <Button
+                    className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-bold text-lg rounded-md shadow-md transition-all duration-300"
+                    onClick={handleUnstake}
+                    disabled={!publicKey || !amount}
+                >
+                    Unstake Tokens
+                </Button>
+            ) : (
+                <p className="text-center text-red-500 text-lg font-bold">
+                    You don't have any tokens staked.
+                </p>
+            )}
         </section>
-    )
-}
+    );
+};
 
 export default UnstakingForm;

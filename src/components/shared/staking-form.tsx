@@ -1,13 +1,58 @@
 "use client"
-import { useGetAccountBalance } from "../../../hooks/useGetBalance"
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
+import { useState } from "react";
+import { useGetAccountBalance } from "../../../hooks/useGetBalance";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import * as anchor from "@project-serum/anchor";
+import { PublicKey, SystemProgram } from "@solana/web3.js";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+
+const programID = new PublicKey("7MHr6ZPGTWZkRk6m52GfEWoMxSV7EoDjYyoXAYf3MBwS");
 
 const StakingForm = () => {
-    const { balance } = useGetAccountBalance()
-    const { connection } = useConnection()
-    const { publicKey } = useWallet();
+    const { balance } = useGetAccountBalance();
+    const { connection } = useConnection();
+    const { publicKey, signTransaction } = useWallet();
+    const [amount, setAmount] = useState("");
+    const [staking, setStaking] = useState(false);
+
+    const handleStake = async () => {
+        if (!connection || !publicKey || !amount) return;
+
+        setStaking(true);
+
+        try {
+            const provider = new anchor.AnchorProvider(connection, { publicKey, signTransaction }, anchor.AnchorProvider.defaultOptions());
+            anchor.setProvider(provider);
+
+            const idl = await anchor.Program.fetchIdl(programID, provider);
+            const program = new anchor.Program(idl, programID, provider);
+
+            const [poolInfoPda, _] = await PublicKey.findProgramAddress([Buffer.from("pool_info")], programID);
+            const [userInfoPda, __] = await PublicKey.findProgramAddress([publicKey.toBuffer()], programID);
+
+            await program.rpc.stake(new anchor.BN(amount), {
+                accounts: {
+                    user: publicKey,
+                    admin: poolInfoPda,
+                    userInfo: userInfoPda,
+                    userStakingWallet: publicKey,
+                    adminStakingWallet: poolInfoPda,
+                    stakingToken: TOKEN_PROGRAM_ID,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                    systemProgram: SystemProgram.programId,
+                },
+            });
+
+            // Update balance or other UI changes here
+
+        } catch (error) {
+            console.error("Staking failed", error);
+        }
+
+        setStaking(false);
+    };
 
     return (
         <section className='py-4 md:py-8 space-y-6 border rounded-lg px-4 md:px-8 bg-white shadow-lg w-full max-w-[700px]'>
@@ -19,12 +64,11 @@ const StakingForm = () => {
                     {
                         !publicKey || !connection ?
                             <div className="flex flex-col space-y-2">
-                                <p className="text-black font-medium text-center text-lg pb-3" >Please Connect your wallet to view your balances!</p>
+                                <p className="text-black font-medium text-center text-lg pb-3">Please Connect your wallet to view your balances!</p>
                                 <div className="flex justify-between">
                                     <h3 className="text-gray-500 font-medium">LiquidVest Token Balance:</h3>
                                     <p className="font-bold text-black text-lg md:text-xl">0</p>
                                 </div>
-
                             </div>
                             :
                             <>
@@ -32,8 +76,6 @@ const StakingForm = () => {
                                 <p className="font-bold text-black text-lg md:text-xl">{balance} LQINV</p>
                             </>
                     }
-
-
                 </div>
                 <div className="flex justify-between">
                     <h3 className="text-gray-500 font-medium">Staked:</h3>
@@ -44,6 +86,8 @@ const StakingForm = () => {
             <div className="rounded-md bg-gray-200 p-4 flex items-center justify-between border">
                 <span className="text-gray-600 font-medium">LQINV</span>
                 <Input
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
                     placeholder="0.00"
                     className="bg-transparent focus:outline-none text-xl text-right border-none outline-none focus:ring-0 flex-1 ml-2"
                 />
@@ -61,20 +105,19 @@ const StakingForm = () => {
             </div>
 
             <Button
-                disabled={
-                    !publicKey || !connection
-                }
-                className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-md shadow-md transition-all duration-300">
+                onClick={handleStake}
+                disabled={!publicKey || !connection || staking}
+                className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-md shadow-md transition-all duration-300"
+            >
                 {
                     !publicKey || !connection ?
                         "Connect Wallet"
                         :
-                        "Stake Tokens"
+                        staking ? "Staking..." : "Stake Tokens"
                 }
-
             </Button>
         </section>
-    )
-}
+    );
+};
 
-export default StakingForm
+export default StakingForm;
