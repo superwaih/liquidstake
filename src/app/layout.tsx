@@ -9,7 +9,7 @@ const recursive = Recursive({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: "liquidinvest Staking Platform",
-  description: "Liquidinvest Staking",
+  description: "LiquidInvest Staking",
 };
 
 export default function RootLayout({

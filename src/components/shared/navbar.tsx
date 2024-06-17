@@ -1,13 +1,13 @@
 "use client"
 import MaxwidthWrapper from './max-width-wrapper'
-import Link from 'next/link'
 import Image from 'next/image'
-import { Button } from '../ui/button'
 import { useAppContext } from '../../../context/app-state'
 import { cn } from '@/lib/utils'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
+
 const Navbar = () => {
     const { currentMode, setCurrentMode } = useAppContext()
+
     return (
         <nav className='bg-black sticky inset-x-0 top-0 h-20 py-4 backdrop-blur-lg transition-all'>
             <MaxwidthWrapper className='flex text-white items-center justify-between'>
