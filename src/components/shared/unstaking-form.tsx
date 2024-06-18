@@ -12,7 +12,6 @@ const UnstakingForm = () => {
     const [amount, setAmount] = useState('');
     const [stakedBalance, setStakedBalance] = useState(0);
     const [unstakedBalance, setUnstakedBalance] = useState(2000); // Example balance, replace with actual logic
-    const [hasStaked, setHasStaked] = useState(false);
 
     useEffect(() => {
         if (publicKey) {
@@ -21,7 +20,6 @@ const UnstakingForm = () => {
             const fetchStakedBalance = async () => {
                 const balance = 10000; // Replace with actual logic
                 setStakedBalance(balance);
-                setHasStaked(balance > 0);
             };
             fetchStakedBalance();
         }
@@ -53,7 +51,6 @@ const UnstakingForm = () => {
             console.log("Unstaking successful");
             // Update the UI with the new balances
             setStakedBalance(stakedBalance - amountToUnstake);
-            setHasStaked(stakedBalance - amountToUnstake > 0);
         } catch (error) {
             console.error("Unstaking failed", error);
         }
@@ -100,19 +97,13 @@ const UnstakingForm = () => {
                 </div>
             </div>
 
-            {hasStaked ? (
-                <Button
-                    className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-bold text-lg rounded-md shadow-md transition-all duration-300"
-                    onClick={handleUnstake}
-                    disabled={!publicKey || !amount}
-                >
-                    Unstake Tokens
-                </Button>
-            ) : (
-                <p className="text-center text-red-500 text-lg font-bold">
-                    You don't have any tokens staked.
-                </p>
-            )}
+            <Button
+                className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-bold text-lg rounded-md shadow-md transition-all duration-300"
+                onClick={handleUnstake}
+                disabled={!publicKey || !amount}
+            >
+                Unstake Tokens
+            </Button>
         </section>
     );
 };
