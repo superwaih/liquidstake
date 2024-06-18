@@ -11,11 +11,12 @@
   "dependencies": {
     "@project-serum/anchor": "^0.26.0",
     "@radix-ui/react-slot": "^1.0.2",
-    "@solana/spl-token": "^0.4.6",
+    "@solana/spl-token": "^0.1.8",
     "@solana/wallet-adapter-base": "^0.9.23",
     "@solana/wallet-adapter-react-ui": "^0.9.35",
     "@solana/wallet-adapter-wallets": "^0.19.32",
     "@solana/web3.js": "^1.93.0",
+    "axios": "^1.7.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.395.0",
