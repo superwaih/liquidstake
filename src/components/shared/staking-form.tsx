@@ -21,14 +21,14 @@ const StakingForm = ({handleStake, amountIn, setAmountIn}) => {
                             <div className="flex flex-col space-y-2">
                                 <p className="text-black font-medium text-center text-lg pb-3" >Please Connect your wallet to view your balances!</p>
                                 <div className="flex justify-between">
-                                    <h3 className="text-gray-500 font-medium">LiquidVest Token Balance:</h3>
+                                    <h3 className="text-gray-500 font-medium">Liquid Invest Token Balance:</h3>
                                     <p className="font-bold text-black text-lg md:text-xl">0</p>
                                 </div>
 
                             </div>
                             :
                             <>
-                                <h3 className="text-gray-500 text-sm md:text-md font-medium">LiquidVest Token Balance:</h3>
+                                <h3 className="text-gray-500 text-sm md:text-md font-medium">LiquidInvest Token Balance:</h3>
                                 <p className="font-bold text-black text-lg md:text-xl">{balance} LQINV</p>
                             </>
                     }

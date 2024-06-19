@@ -46,6 +46,8 @@ const FormsContainer = () => {
       });
     
     const [amountIn, setAmountIn] = useState(0);
+    const [amountUnstake, setAmountUnstake] = useState(0);
+
     const [stakingData, setStakingData] = useState<UserStakingInfo | null>(null);
     const [stakePool, setStakePool] = useState(1);
     const [stakingPoolData, setStakingPoolData] = useState(null);
@@ -183,17 +185,17 @@ const handleStake = async () => {
     // Send the signed message to the backend
     axios.post(ENDPOINT + '/unstake', {
       signature: signedMessage,
-      amount: amountIn,
+      amount: amountUnstake,
       userAddress: publicKey?.toBase58(),
       userId: MD5(publicKey?.toBase58()).toString(),
     }).then(response => {
         setMessageInfo({ isLoading: false, messageText: 'Transaction successful', messageType: 'success' });
-        setAmountIn(0);
+        setAmountUnstake(0);
     }).catch(error => {
         const messageError = error.response.data.error || error.message.replace('Error: ', '') || 'Transaction failed';
         setMessageInfo({ isLoading: false, messageText: `Error: ${messageError}`, messageType: 'error' });
     }).finally(() => {
-        setAmountIn(0);
+      setAmountUnstake(0);
     })
   }
 
@@ -272,7 +274,11 @@ const handleStake = async () => {
           handleStake={handleStake} />
 
           :
-          <UnstakingForm stakingData={stakingData} handleUnstake={handleUnstake} handleClaim={handleClaim} />
+          <UnstakingForm
+        amountUnstake={amountUnstake}
+        setAmountUnstake={setAmountUnstake}
+          
+          stakingData={stakingData} handleUnstake={handleUnstake} handleClaim={handleClaim} />
         }
 
     </div>

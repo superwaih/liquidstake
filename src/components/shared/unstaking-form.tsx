@@ -8,7 +8,7 @@ import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { useGetAccountBalance } from '../../../hooks/useGetBalance';
 
-const UnstakingForm = ({handleClaim, handleUnstake, stakingData}) => {
+const UnstakingForm = ({handleClaim, handleUnstake, stakingData, amountUnstake, setAmountUnstake}) => {
     const { connection } = useConnection();
     const { balance } = useGetAccountBalance()
     const { publicKey, sendTransaction } = useWallet();
@@ -53,9 +53,9 @@ const UnstakingForm = ({handleClaim, handleUnstake, stakingData}) => {
                 <div className="flex items-center w-full ml-2">
                     <Input
                         placeholder="0.00"
-                        value={amount}
+                        value={amountUnstake}
                        
-                        onChange={(e) => setAmount(e.target.value)}
+                        onChange={(e) => setAmountUnstake(e.target.value)}
                         className="bg-transparent text-xl text-right border-none outline-none focus:ring-0 flex-1"
                     />
                     <Button className="ml-2 py-1 px-3 bg-blue-500 hover:bg-blue-700 text-white font-bold text-sm rounded-md transition-all duration-300" onClick={setMaxAmount}>
