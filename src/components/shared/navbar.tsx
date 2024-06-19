@@ -24,7 +24,7 @@ const Navbar = () => {
               "pool": 1
           })
           .then(response => {
-              console.log(response); // Log the response data
+            //   console.log(response); // Log the response data
           })
           .catch(error => {
               console.error('There was a problem with the axios request:', error);

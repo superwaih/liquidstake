@@ -18,8 +18,7 @@ const UnstakingForm = ({handleClaim, handleUnstake, stakingData, amountUnstake, 
 
     useEffect(() => {
         if (publicKey) {
-            // Fetch the staked balance for the user from your staking program
-            // This is a placeholder logic; replace it with actual fetch logic
+     
             const fetchStakedBalance = async () => {
                 const balance = 10000; // Replace with actual logic
                 setStakedBalance(balance);
@@ -30,7 +29,7 @@ const UnstakingForm = ({handleClaim, handleUnstake, stakingData, amountUnstake, 
 
   
     const setMaxAmount = () => {
-        setAmount(stakingData?.totalStaked);
+        setAmountUnstake(stakingData?.totalStaked);
     };
 
     return (

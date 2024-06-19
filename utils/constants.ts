@@ -1,5 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
-export const ENDPOINT = "https://lqinv-backend.onrender.com"
+// export const ENDPOINT = "https://lqinv-backend.onrender.com"
+export const ENDPOINT = "http://localhost:5000"
+
 export const PROGRAM_ID = new PublicKey("53Es3cKQ3bDzokkCNjYmJs1a4fL23BWW3GfqaduPhWXm")
 
 

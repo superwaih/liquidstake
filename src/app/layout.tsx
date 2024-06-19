@@ -4,8 +4,8 @@ import "./globals.css";
 import Navbar from "@/components/shared/navbar";
 import AppProvider from "../../context/app-state";
 import WalletLayout from "../../context/wallet-layout";
+import { Toaster } from "@/components/ui/toaster";
 const recursive = Recursive({ subsets: ['latin'] })
-
 
 export const metadata: Metadata = {
   title: "liquidinvest Staking Platform",
@@ -27,6 +27,8 @@ export default function RootLayout({
           {/* <Navbar /> */}
          <div className="h-full bg-bgApp bg-cover  min-h-screen">
          {children}
+
+         <Toaster />
          </div>
 </WalletLayout>
         </AppProvider>

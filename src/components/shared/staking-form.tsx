@@ -4,7 +4,7 @@ import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
-const StakingForm = ({handleStake, amountIn, setAmountIn}) => {
+const StakingForm = ({handleStake, amountIn, setAmountIn, stakingData}) => {
     const { balance } = useGetAccountBalance()
     const { connection } = useConnection()
     const { publicKey } = useWallet();
@@ -37,7 +37,7 @@ const StakingForm = ({handleStake, amountIn, setAmountIn}) => {
                 </div>
                 <div className="flex justify-between">
                     <h3 className="text-gray-500 font-medium">Staked:</h3>
-                    <p className="font-bold text-black text-lg md:text-xl">0</p>
+                    <p className="font-bold text-black text-lg md:text-xl">{stakingData?.totalStaked}</p>
                 </div>
             </div>
 
