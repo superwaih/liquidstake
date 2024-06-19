@@ -1,3 +1,4 @@
+//@ts-ignore
 "use client"
 import { useState, useEffect } from 'react';
 import { Button } from "../ui/button";
@@ -5,9 +6,11 @@ import { Input } from "../ui/input";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { useGetAccountBalance } from '../../../hooks/useGetBalance';
 
-const UnstakingForm = () => {
+const UnstakingForm = ({handleClaim, handleUnstake, stakingData}) => {
     const { connection } = useConnection();
+    const { balance } = useGetAccountBalance()
     const { publicKey, sendTransaction } = useWallet();
     const [amount, setAmount] = useState('');
     const [stakedBalance, setStakedBalance] = useState(0);
@@ -25,39 +28,9 @@ const UnstakingForm = () => {
         }
     }, [publicKey]);
 
-    const handleUnstake = async () => {
-        if (!publicKey || !amount) return;
-
-        const amountToUnstake = parseInt(amount, 10);
-
-        // Implement the actual unstaking logic here
-        console.log(`Unstaking ${amountToUnstake}`);
-
-        try {
-            // Replace the following with actual transaction creation and sending logic
-            const transaction = new Transaction().add(
-                // Add instructions to unstake tokens
-                // This is a placeholder instruction; replace it with actual logic
-                SystemProgram.transfer({
-                    fromPubkey: publicKey,
-                    toPubkey: new PublicKey("AdminPublicKeyHere"), // Replace with actual admin public key
-                    lamports: amountToUnstake,
-                })
-            );
-
-            const signature = await sendTransaction(transaction, connection);
-            await connection.confirmTransaction(signature, "processed");
-
-            console.log("Unstaking successful");
-            // Update the UI with the new balances
-            setStakedBalance(stakedBalance - amountToUnstake);
-        } catch (error) {
-            console.error("Unstaking failed", error);
-        }
-    };
-
+  
     const setMaxAmount = () => {
-        setAmount(stakedBalance.toString());
+        setAmount(stakingData?.totalStaked);
     };
 
     return (
@@ -67,11 +40,11 @@ const UnstakingForm = () => {
             <div className="flex flex-col space-y-4 bg-gray-100 w-full py-4 px-4 rounded-md shadow-sm">
                 <div className="flex justify-between">
                     <h3 className="text-gray-500 font-medium">Staked Balance:</h3>
-                    <p className="font-bold text-black text-lg md:text-xl">{stakedBalance.toLocaleString()}</p>
+                    <p className="font-bold text-black text-lg md:text-xl">{stakingData?.totalStaked}</p>
                 </div>
                 <div className="flex justify-between">
                     <h3 className="text-gray-500 font-medium">Unstaked Balance:</h3>
-                    <p className="font-bold text-black text-lg md:text-xl">{unstakedBalance.toLocaleString()}</p>
+                    <p className="font-bold text-black text-lg md:text-xl">{balance}</p>
                 </div>
             </div>
 
@@ -81,6 +54,7 @@ const UnstakingForm = () => {
                     <Input
                         placeholder="0.00"
                         value={amount}
+                       
                         onChange={(e) => setAmount(e.target.value)}
                         className="bg-transparent text-xl text-right border-none outline-none focus:ring-0 flex-1"
                     />

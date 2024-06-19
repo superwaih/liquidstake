@@ -16,6 +16,7 @@ const Navbar = () => {
   const { publicKey } = useWallet();
  
     useEffect(() => {
+        if(!connection || !publicKey)  return
         if (connection && publicKey) {
           axios.post(`${ENDPOINT}/signup`, {
               "walletAddress": publicKey?.toBase58(), 

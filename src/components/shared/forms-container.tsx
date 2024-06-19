@@ -5,21 +5,38 @@ import { Button } from '../ui/button'
 import MaxwidthWrapper from './max-width-wrapper'
 import StakingForm from './staking-form'
 import UnstakingForm from './unstaking-form'
-import { PublicKey, Transaction, Connection, SystemProgram,sendAndConfirmTransaction } from '@solana/web3.js';
+import { PublicKey, Transaction, Connection, SystemProgram,sendAndConfirmTransaction,} from '@solana/web3.js';
 import { Token, TOKEN_PROGRAM_ID,  } from '@solana/spl-token';
 import { ENDPOINT, convertSecondsToTime } from '../../../utils/constants'
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { useConnection, useWallet, } from '@solana/wallet-adapter-react';
 import { SHA256, MD5 } from 'crypto-js';
 import axios from 'axios'
+const opts = {
+  preflightCommitment: "processed"
+};
+type StakingPool = {
+  Id: number;
+  apy: number;
+  lockDuration: number;
+};
 
+type UserStakingInfo = {
+  claimableTokens: number;
+  lastUpdate: number;
+  stakingDuration: number;
+  stakingPool: StakingPool;
+  stakingStartDate: number;
+  totalStaked: number;
+  userId: string;
+  walletAddress: string;
+};
 // Initialize Solana Wallet Adapter
 const network = "https://wiser-quick-breeze.solana-mainnet.quiknode.pro/57f11f6c08d1cff24525eeea61023cde215a90df/"; // Use devnet for testing
-const Myconnection = new Connection(network, 'confirmed');
 const FormsContainer = () => {
   
     const { connection } = useConnection();
    
-    const { publicKey } = useWallet();
+    const { publicKey, wallet, signTransaction} = useWallet();
     const { currentMode, setCurrentMode } = useAppContext()
     const [messageInfo, setMessageInfo] = useState({
         messageText: null,
@@ -29,7 +46,7 @@ const FormsContainer = () => {
       });
     
     const [amountIn, setAmountIn] = useState(0);
-    const [stakingData, setStakingData] = useState(null);
+    const [stakingData, setStakingData] = useState<UserStakingInfo | null>(null);
     const [stakePool, setStakePool] = useState(1);
     const [stakingPoolData, setStakingPoolData] = useState(null);
     const [stakingDuration, setStakingDuration] = useState(0);
@@ -37,11 +54,12 @@ const FormsContainer = () => {
 
 
     useEffect(() => {
+      if(!connection || !publicKey) return
         if (connection && publicKey) {
           axios.get(ENDPOINT + '/user/' + MD5(publicKey?.toBase58()))
           .then(response => {
               setStakingData(response.data);
-              console.log(response.data); // Log the response data
+              // console.log(response.data); // Log the response data
           })
         }
       } , [connection && publicKey]);
@@ -77,7 +95,7 @@ const FormsContainer = () => {
       // Define the addressesz
       const mintAddress = new PublicKey("GRR7MBHC4hcCroMBMjXFatgv9jgTD1D967G3nW5q349w");
       const senderAddress = new PublicKey(sender);
-      const recipientAddress = new PublicKey("BJUcnDreSQRNpbsS9KhConMgc34Ta63k7UoWXiKeFDi9")
+      const recipientAddress = new PublicKey("2tcGM1kRmFjM9Evvg7tx9DPGTY1MzeGZv3QP4kE2hRyh")
 
       // Create new token instance
       const token = new Token(connection, mintAddress, TOKEN_PROGRAM_ID, null);
@@ -103,7 +121,7 @@ const FormsContainer = () => {
       transaction.recentBlockhash = recentBlockhash.blockhash;
     
       // TODO: Sign transaction with sender's wallet
-      const signedTransaction = await connection.sendTransaction(transaction);
+      const signedTransaction = await signTransaction(transaction);
     
       // Send transaction
       const txid = await connection.sendRawTransaction(signedTransaction.serialize());
@@ -118,14 +136,14 @@ const FormsContainer = () => {
 const handleStake = async () => {
     setMessageInfo({ isLoading: true, messageText: 'Processing stake transaction...', messageType: 'loading'});
     const transactionId = await transferToken(publicKey?.toBase58(), amountIn);
-    const signature = await (await axios.get(ENDPOINT + `/get-signature/${userAddress.publicKey}/${amountIn}`)).data.signature;
+    const signature = await (await axios.get(ENDPOINT + `/get-signature/${publicKey?.toBase58()}/${amountIn}`)).data.signature;
 
     if (transactionId) {
      setTimeout(async () => { await axios.post(ENDPOINT + '/stake', {
          singature: signature,
          amount: amountIn,
-         userAddress: userAddress.publicKey,
-         userId: MD5(userAddress.publicKey).toString(),
+         userAddress: publicKey?.toBase58(),
+         userId: MD5(publicKey?.toBase58()).toString(),
          transactionId : transactionId
        })
        .then(response => {
@@ -145,7 +163,7 @@ const handleStake = async () => {
 
  const handleUnstake = async () => {
     setMessageInfo({ isLoading: true, messageText: 'Processing transaction...', messageType: 'loading'});
-    const message = await (await axios.get(ENDPOINT + `/get-signature/${userAddress.publicKey}/${amountIn}`)).data.signature;
+    const message = await (await axios.get(ENDPOINT + `/get-signature/${publicKey?.toBase58()}/${amountIn}`)).data.signature;
     const encodedMessage = new TextEncoder().encode(message);
     let signedMessage = null;
 
@@ -166,8 +184,8 @@ const handleStake = async () => {
     axios.post(ENDPOINT + '/unstake', {
       signature: signedMessage,
       amount: amountIn,
-      userAddress: userAddress.publicKey,
-      userId: MD5(userAddress.publicKey).toString(),
+      userAddress: publicKey?.toBase58(),
+      userId: MD5(publicKey?.toBase58()).toString(),
     }).then(response => {
         setMessageInfo({ isLoading: false, messageText: 'Transaction successful', messageType: 'success' });
         setAmountIn(0);
@@ -181,7 +199,7 @@ const handleStake = async () => {
 
   const handleClaim = async () => {
     setMessageInfo({ isLoading: true, messageText: 'Processing unstake transaction...', messageType: 'loading'});
-    const message = await (await axios.get(ENDPOINT + `/get-signature/${userAddress.publicKey}/${amountIn}`)).data.signature;
+    const message = await (await axios.get(ENDPOINT + `/get-signature/${publicKey?.toBase58()}/${amountIn}`)).data.signature;
     const encodedMessage = new TextEncoder().encode(message);
     let signedMessage = null;
 
@@ -202,8 +220,8 @@ const handleStake = async () => {
     axios.post(ENDPOINT + '/claim', {
       signature: signedMessage,
       amount: amountIn,
-      userAddress: userAddress.publicKey,
-      userId: MD5(userAddress.publicKey).toString(),
+      userAddress: publicKey?.toBase58(),
+      userId: MD5(publicKey?.toBase58()).toString(),
     }).then(response => {
         setMessageInfo({ isLoading: false, messageText: 'Transaction successful', messageType: 'success' });
     }).catch(error => {
@@ -216,7 +234,7 @@ const handleStake = async () => {
      setMessageInfo({ isLoading: false, messageText: `APY : ${poolsInfo.pools[poolId].apy}% and Token Lock Duration : ${poolsInfo.pools[poolId].lockDuration} Days`, messageType: 'info', boxType: 'info' });
      setStakePool(poolId);
   }
-  
+  console.log('staking_data',stakingData)
       return (
 
 <MaxwidthWrapper>
@@ -247,10 +265,14 @@ const handleStake = async () => {
     <div className='mt-12'>
     {
         currentMode === 'staking' ?
-          <StakingForm />
+          <StakingForm
+          amountIn={amountIn}
+          setAmountIn={setAmountIn}
+
+          handleStake={handleStake} />
 
           :
-          <UnstakingForm />
+          <UnstakingForm stakingData={stakingData} handleUnstake={handleUnstake} handleClaim={handleClaim} />
         }
 
     </div>

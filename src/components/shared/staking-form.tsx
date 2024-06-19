@@ -4,7 +4,7 @@ import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
-const StakingForm = () => {
+const StakingForm = ({handleStake, amountIn, setAmountIn}) => {
     const { balance } = useGetAccountBalance()
     const { connection } = useConnection()
     const { publicKey } = useWallet();
@@ -44,6 +44,8 @@ const StakingForm = () => {
             <div className="rounded-md bg-gray-200 p-4 flex items-center justify-between border">
                 <span className="text-gray-600 font-medium">LQINV</span>
                 <Input
+                value={amountIn}
+                onChange={(e) => setAmountIn(e.target.value)}
                     placeholder="0.00"
                     className="bg-transparent focus:outline-none text-xl text-right border-none outline-none focus:ring-0 flex-1 ml-2"
                 />
@@ -64,6 +66,7 @@ const StakingForm = () => {
                 disabled={
                     !publicKey || !connection
                 }
+                onClick={() =>handleStake()}
                 className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-md shadow-md transition-all duration-300">
                 {
                     !publicKey || !connection ?
