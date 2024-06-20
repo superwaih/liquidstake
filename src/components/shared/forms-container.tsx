@@ -246,18 +246,21 @@ const FormsContainer = () => {
 
     return (
         <MaxwidthWrapper>
-            <section className='py-12 ease-in-out duration-300 transition-all flex items-center justify-center flex-col'>
+            <section className='py-8 ease-in-out duration-300 transition-all flex items-center justify-center flex-col'>
                 <div className='bg-white py-2 ease-in-out duration-300 transition-all rounded-2xl px-3 flex'>
-                    <div 
+                    <button 
                         onClick={() => setCurrentMode('staking')}
+                        disabled={messageInfo.isLoading}
                         className={
                             currentMode === 'staking' ?
                             'bg-green-600 px-4 cursor-pointer py-3 rounded-3xl text-white font-bold' :
                             'px-4 py-3 cursor-pointer text-black font-bold'
                         }>
                         Staking
-                    </div>
-                    <div
+                    </button>
+                    <button
+                        disabled={messageInfo.isLoading}
+
                         onClick={() => setCurrentMode('unstaking')}
                         className={
                             currentMode === 'unstaking' ?
@@ -265,7 +268,7 @@ const FormsContainer = () => {
                             'px-4 py-3 cursor-pointer text-black font-bold'
                         }>
                         Unstaking
-                    </div>
+                    </button>
                 </div>
 
                 <div className='mt-12'>
