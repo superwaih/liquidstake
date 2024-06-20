@@ -5,8 +5,14 @@ import { useGetAccountBalance } from "../../../hooks/useGetBalance"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+interface IProps {
+    handleStake: any;
+    stakingData: UserStakingInfo | null;
+    amountIn: number;
+    setAmountIn: any;
 
-const StakingForm = ({handleStake, amountIn, setAmountIn, stakingData}) => {
+}
+const StakingForm = ({handleStake, amountIn, setAmountIn, stakingData}: IProps) => {
     const { balance } = useGetAccountBalance()
     const { connection } = useConnection()
     const { publicKey } = useWallet();
