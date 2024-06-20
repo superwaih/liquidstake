@@ -8,25 +8,14 @@ import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { useGetAccountBalance } from '../../../hooks/useGetBalance';
 import { useAppContext } from '../../../context/app-state';
+import { Shell } from 'lucide-react';
 
 const UnstakingForm = ({handleUnstake, stakingData, amountUnstake, setAmountUnstake}) => {
-    const { connection } = useConnection();
     const { balance } = useGetAccountBalance()
-    const { publicKey, sendTransaction } = useWallet();
-    const [amount, setAmount] = useState('');
-    const [stakedBalance, setStakedBalance] = useState(0);
-  
+    const { publicKey} = useWallet();
+ 
     const {messageInfo} = useAppContext()
-    useEffect(() => {
-        if (publicKey) {
-     
-            const fetchStakedBalance = async () => {
-                const balance = 10000; // Replace with actual logic
-                setStakedBalance(balance);
-            };
-            fetchStakedBalance();
-        }
-    }, [publicKey]);
+
 
   
     const setMaxAmount = () => {
@@ -72,10 +61,13 @@ const UnstakingForm = ({handleUnstake, stakingData, amountUnstake, setAmountUnst
             </div>
 
             <Button
+
                 className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-bold text-lg rounded-md shadow-md transition-all duration-300"
                 onClick={handleUnstake}
                 disabled={!publicKey  || messageInfo.isLoading }
             >
+                {messageInfo.isLoading && <Shell color='#00F5FF' className='animate-spin' />}
+
                 Unstake Tokens
             </Button>
         </section>

@@ -3,7 +3,10 @@ export const ENDPOINT = "https://lqinv-backend.onrender.com"
 // export const ENDPOINT = "http://localhost:5000"
 
 export const PROGRAM_ID = new PublicKey("53Es3cKQ3bDzokkCNjYmJs1a4fL23BWW3GfqaduPhWXm")
-
+export function isValidNumber(value : any) {
+  return typeof value === 'number' && !isNaN(value) ||
+         (typeof value === 'string' && value.trim() !== '' && !isNaN(Number(value)));
+}
 
 export  const convertSecondsToTime = (seconds) => {
     const hours = Math.floor(seconds / 3600);

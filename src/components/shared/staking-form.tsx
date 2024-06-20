@@ -1,4 +1,5 @@
 "use client"
+import { Shell } from "lucide-react";
 import { useAppContext } from "../../../context/app-state";
 import { useGetAccountBalance } from "../../../hooks/useGetBalance"
 import { Button } from "../ui/button"
@@ -70,6 +71,7 @@ const StakingForm = ({handleStake, amountIn, setAmountIn, stakingData}) => {
                 }
                 onClick={() =>handleStake()}
                 className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-md shadow-md transition-all duration-300">
+                {messageInfo.isLoading && <Shell color='#00F5FF' className='animate-spin' />}
                 {
                     !publicKey || !connection ?
                         "Connect Wallet"

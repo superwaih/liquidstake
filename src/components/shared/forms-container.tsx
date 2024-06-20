@@ -7,7 +7,7 @@ import StakingForm from './staking-form'
 import UnstakingForm from './unstaking-form'
 import { PublicKey, Transaction, Connection, SystemProgram, sendAndConfirmTransaction } from '@solana/web3.js';
 import { Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { ENDPOINT, convertSecondsToTime } from '../../../utils/constants'
+import { ENDPOINT, convertSecondsToTime, isValidNumber } from '../../../utils/constants'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { SHA256, MD5 } from 'crypto-js';
 import axios from 'axios'
@@ -47,10 +47,7 @@ const FormsContainer = () => {
     const [amountIn, setAmountIn] = useState(0);
     const [amountUnstake, setAmountUnstake] = useState(0);
     const [stakingData, setStakingData] = useState<UserStakingInfo | null>(null);
-    const [stakePool, setStakePool] = useState(1);
-    const [stakingPoolData, setStakingPoolData] = useState(null);
-    const [stakingDuration, setStakingDuration] = useState(0);
-    const [poolsInfo, setPoolsInfo] = useState(null);
+  ;
 
     useEffect(() => {
         if (!connection || !publicKey) return;
@@ -58,7 +55,6 @@ const FormsContainer = () => {
             axios.get(ENDPOINT + '/user/' + MD5(publicKey?.toBase58()))
                 .then(response => {
                     setStakingData(response.data);
-                    // console.log(response.data); // Log the response data
                 })
         }
     }, [connection, publicKey, messageInfo]);
@@ -72,24 +68,8 @@ const FormsContainer = () => {
         }
     }, [stakingData]);
 
-    useEffect(() => {
-        if (stakingData) {
-            const interval = setInterval(() => {
-                setStakingDuration(convertSecondsToTime((stakingData.stakingStartDate + 86400000 * stakingPoolData.lockDuration - Date.now()) / 1000));
-            }, 1000);
-
-            return () => clearInterval(interval);
-        }
-    }, [stakingPoolData]);
-
-    useEffect(() => {
-        if (stakePool) {
-            axios.get(ENDPOINT + '/get-pools/')
-                .then(response => {
-                    setPoolsInfo(response.data);
-                })
-        }
-    }, [stakePool]);
+   
+   
 
     async function transferToken(sender, amount) {
         try {
@@ -129,9 +109,20 @@ const FormsContainer = () => {
             return false;
         }
     }
-
     const handleStake = async () => {
+ 
+        if ( amountIn === 0 || amountIn === null || amountIn < 100 || isValidNumber(amountIn) === false ) {
+            toast({
+              variant: "destructive",
+              title: "Invalid Amount",
+              description: "Please enter a valid amount. Minimum Stake is 100 ",
+            })
+            return;
+          }
+
+
         setMessageInfo({ isLoading: true, messageText: 'Processing stake transaction...', messageType: 'loading' });
+       
         const transactionId = await transferToken(publicKey?.toBase58(), amountIn);
        
         let signature: any;
@@ -186,6 +177,22 @@ const FormsContainer = () => {
     }
   
     const handleUnstake = async () => {
+        if ( amountUnstake === 0 || amountUnstake === null || amountUnstake < 100 || isValidNumber(amountUnstake) === false ) {
+            toast({
+              variant: "destructive",
+              title: "Invalid Amount",
+              description: "Please enter a valid amount. Minimum is 100 ",
+            })
+            return;
+          }
+          if(amountUnstake > stakingData?.totalStaked){
+            toast({
+                variant: "destructive",
+                title: "Adjust Amount",
+                description: "You don't have enough balance ",
+              })
+              return;
+          }
         setMessageInfo({ isLoading: true, messageText: 'Processing transaction...', messageType: 'loading' });
         const res = await axios.get(ENDPOINT + `/get-signature/${publicKey?.toBase58()}/${amountIn}`)
         
@@ -197,22 +204,14 @@ const FormsContainer = () => {
         let signedMessage = null;
 
         try {
-            // signedMessage = await window.solana.request({
-            //     method: 'signMessage',
-            //     params: {
-            //         message: encodedMessage,
-            //         display: 'utf8',
-            //     },
-            // });
+       
             signedMessage = await signMessage(encodedMessage);
-    //   console.log('Signed message:', signedMessage);
         } catch (error) {
             setMessageInfo({ isLoading: false, messageText: `Error: ${error.message.replace('Error: ', '')}`, messageType: 'error' });
             toast({
                 title: "Error",
                 variant: "destructive",
                 description: `Unstake request failed: ${error.message}`,
-                // status: "error"
             });
             return false;
         }
@@ -228,7 +227,6 @@ const FormsContainer = () => {
             toast({
                 title: "Success",
                 description: "Unstake transaction completed successfully",
-                // status: "success"
             });
         }).catch(error => {
             const messageError = error.response.data.error || error.message.replace('Error: ', '') || 'Transaction failed';
@@ -237,72 +235,15 @@ const FormsContainer = () => {
                 title: "Error",
                 variant: "destructive",
                 description: `Unstake transaction failed: ${messageError}`,
-                // status: "error"
             });
         }).finally(() => {
             setAmountUnstake(0);
         });
     }
 
-    const handleClaim = async () => {
-        setMessageInfo({ isLoading: true, messageText: 'Processing unstake transaction...', messageType: 'loading' });
-        const message = await (await axios.get(ENDPOINT + `/get-signature/${publicKey?.toBase58()}/${amountIn}`)).data.signature;
-        const encodedMessage = new TextEncoder().encode(message);
-        let signedMessage = null;
 
-        try {
-            signedMessage = await window.solana.request({
-                method: 'signMessage',
-                params: {
-                    message: encodedMessage,
-                    display: 'utf8',
-                },
-            });
-        } catch (error) {
-            setMessageInfo({ isLoading: false, messageText: `Error: ${error.message.replace('Error: ', '')}`, messageType: 'error' });
-            toast({
-                title: "Error",
-                variant: "destructive",
-                description: `Claim request failed: ${error.message}`,
-                // status: "error"
-            });
-            return false;
-        }
 
-        axios.post(ENDPOINT + '/claim', {
-            signature: signedMessage,
-            amount: amountIn,
-            userAddress: publicKey?.toBase58(),
-            userId: MD5(publicKey?.toBase58()).toString(),
-        }).then(response => {
-            setMessageInfo({ isLoading: false, messageText: 'Transaction successful', messageType: 'success' });
-            toast({
-                title: "Success",
-                description: "Claim transaction completed successfully",
-                // status: "success"
-            });
-        }).catch(error => {
-            const messageError = error.response.data.error || error.message.replace('Error: ', '') || 'Transaction failed';
-            setMessageInfo({ isLoading: false, messageText: `Error: ${messageError}`, messageType: 'error' });
-            toast({
-                title: "Error",
-                description: `Claim transaction failed: ${messageError}`,
-                // status: "error"
-            });
-        });
-    }
 
-    const showPoolInfo = (poolId) => {
-        setMessageInfo({ isLoading: false, messageText: `APY : ${poolsInfo.pools[poolId].apy}% and Token Lock Duration : ${poolsInfo.pools[poolId].lockDuration} Days`, messageType: 'info', boxType: 'info' });
-        setStakePool(poolId);
-        toast({
-            title: "Pool Info",
-            description: `APY: ${poolsInfo.pools[poolId].apy}%\nToken Lock Duration: ${poolsInfo.pools[poolId].lockDuration} Days`,
-            status: "info"
-        });
-    }
-
-    // console.log('staking_data', stakingData)
     return (
         <MaxwidthWrapper>
             <section className='py-12 ease-in-out duration-300 transition-all flex items-center justify-center flex-col'>
@@ -340,7 +281,9 @@ const FormsContainer = () => {
                             setAmountUnstake={setAmountUnstake}
                             stakingData={stakingData}
                             handleUnstake={handleUnstake}
-                            handleClaim={handleClaim} />
+                            // handleClaim={handleClaim} 
+                            
+                            />
                     }
                 </div>
             </section>
