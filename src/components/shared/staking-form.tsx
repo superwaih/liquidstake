@@ -1,4 +1,5 @@
 "use client"
+import { useAppContext } from "../../../context/app-state";
 import { useGetAccountBalance } from "../../../hooks/useGetBalance"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
@@ -8,6 +9,7 @@ const StakingForm = ({handleStake, amountIn, setAmountIn, stakingData}) => {
     const { balance } = useGetAccountBalance()
     const { connection } = useConnection()
     const { publicKey } = useWallet();
+    const {messageInfo} = useAppContext()
 
     return (
         <section className='py-4 md:py-8 space-y-6 border rounded-lg px-4 md:px-8 bg-white shadow-lg w-full max-w-[700px]'>
@@ -64,7 +66,7 @@ const StakingForm = ({handleStake, amountIn, setAmountIn, stakingData}) => {
 
             <Button
                 disabled={
-                    !publicKey || !connection
+                    !publicKey || !connection ||  messageInfo.isLoading
                 }
                 onClick={() =>handleStake()}
                 className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-md shadow-md transition-all duration-300">

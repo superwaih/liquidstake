@@ -7,15 +7,16 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { useGetAccountBalance } from '../../../hooks/useGetBalance';
+import { useAppContext } from '../../../context/app-state';
 
-const UnstakingForm = ({handleClaim, handleUnstake, stakingData, amountUnstake, setAmountUnstake}) => {
+const UnstakingForm = ({handleUnstake, stakingData, amountUnstake, setAmountUnstake}) => {
     const { connection } = useConnection();
     const { balance } = useGetAccountBalance()
     const { publicKey, sendTransaction } = useWallet();
     const [amount, setAmount] = useState('');
     const [stakedBalance, setStakedBalance] = useState(0);
-    const [unstakedBalance, setUnstakedBalance] = useState(2000); // Example balance, replace with actual logic
-
+  
+    const {messageInfo} = useAppContext()
     useEffect(() => {
         if (publicKey) {
      
@@ -73,7 +74,7 @@ const UnstakingForm = ({handleClaim, handleUnstake, stakingData, amountUnstake, 
             <Button
                 className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-bold text-lg rounded-md shadow-md transition-all duration-300"
                 onClick={handleUnstake}
-                disabled={!publicKey || !amount}
+                disabled={!publicKey  || messageInfo.isLoading }
             >
                 Unstake Tokens
             </Button>

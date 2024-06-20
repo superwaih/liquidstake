@@ -12,10 +12,8 @@ import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { SHA256, MD5 } from 'crypto-js';
 import axios from 'axios'
 import { useToast } from '../ui/use-toast'
+import { encode } from 'bs58';
 
-const opts = {
-  preflightCommitment: "processed"
-};
 
 type StakingPool = {
   Id: number;
@@ -40,7 +38,7 @@ const Conconnection = new Connection("https://solana-mainnet.g.alchemy.com/v2/A2
 
 const FormsContainer = () => {
     const { connection } = useConnection();
-    const { publicKey, wallet, signTransaction } = useWallet();
+    const { publicKey, wallet, signTransaction, signMessage} = useWallet();
     const { currentMode, setCurrentMode } = useAppContext();
     const { toast } = useToast() // Initialize useToast
 
@@ -131,7 +129,7 @@ const FormsContainer = () => {
             return false;
         }
     }
- console.log(stakingData)
+
     const handleStake = async () => {
         setMessageInfo({ isLoading: true, messageText: 'Processing stake transaction...', messageType: 'loading' });
         const transactionId = await transferToken(publicKey?.toBase58(), amountIn);
@@ -187,21 +185,27 @@ const FormsContainer = () => {
         }
     }
   
-// console.log(getTransactionInfo('3WsKHWE2yX6BLQnHJYLgCw93ZexnYsAYXhrs8CywNAgUqZmiBFazSfB8b3WUJAGAJk6HxgJQNUcMnBQ37gW9gxSg') )     
     const handleUnstake = async () => {
         setMessageInfo({ isLoading: true, messageText: 'Processing transaction...', messageType: 'loading' });
-        const message = await (await axios.get(ENDPOINT + `/get-signature/${publicKey?.toBase58()}/${amountIn}`)).data.signature;
+        const res = await axios.get(ENDPOINT + `/get-signature/${publicKey?.toBase58()}/${amountIn}`)
+        
+
+        const message = res.data.signature;
+        console.log(message)
+
         const encodedMessage = new TextEncoder().encode(message);
         let signedMessage = null;
 
         try {
-            signedMessage = await window.solana.request({
-                method: 'signMessage',
-                params: {
-                    message: encodedMessage,
-                    display: 'utf8',
-                },
-            });
+            // signedMessage = await window.solana.request({
+            //     method: 'signMessage',
+            //     params: {
+            //         message: encodedMessage,
+            //         display: 'utf8',
+            //     },
+            // });
+            signedMessage = await signMessage(encodedMessage);
+    //   console.log('Signed message:', signedMessage);
         } catch (error) {
             setMessageInfo({ isLoading: false, messageText: `Error: ${error.message.replace('Error: ', '')}`, messageType: 'error' });
             toast({
