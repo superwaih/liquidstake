@@ -63,7 +63,8 @@ const FormsContainer = () => {
         if (stakingData && stakingData.totalStaked > 0) {
             axios.get(ENDPOINT + '/get-pool/' + MD5(publicKey?.toBase58()).toString())
                 .then(response => {
-                    setStakingPoolData(response.data);
+                    // setStakingPoolData(response.data);
+                    console.log(response.data)
                 })
         }
     }, [stakingData]);

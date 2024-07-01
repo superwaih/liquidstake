@@ -24,7 +24,7 @@ const UnstakingForm = ({handleUnstake, stakingData, amountUnstake, setAmountUnst
 
     return (
         <section className='py-8 space-y-6 border rounded-lg px-8 bg-white shadow-lg w-full max-w-[700px]'>
-            <h2 className="text-center text-black text-3xl pt-3 pb-5 font-bold">Unstake Your LiquidVest Tokens</h2>
+            <h2 className="text-center text-black text-3xl pt-3 pb-5 font-bold">Unstake Your LiquidInvest Tokens</h2>
             
             <div className="flex flex-col space-y-4 bg-gray-100 w-full py-4 px-4 rounded-md shadow-sm">
                 <div className="flex justify-between">
