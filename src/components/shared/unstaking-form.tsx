@@ -3,14 +3,20 @@
 import { useState, useEffect } from 'react';
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import {  useWallet } from "@solana/wallet-adapter-react";
+
 import { useGetAccountBalance } from '../../../hooks/useGetBalance';
 import { useAppContext } from '../../../context/app-state';
 import { Shell } from 'lucide-react';
 
-const UnstakingForm = ({handleUnstake, stakingData, amountUnstake, setAmountUnstake}) => {
+interface IProps {
+    handleUnstake: any;
+    stakingData:UserStakingInfo | null;
+    amountUnstake: number;
+    setAmountUnstake: any;
+
+}
+const UnstakingForm = ({handleUnstake, stakingData, amountUnstake, setAmountUnstake}: IProps) => {
     const { balance } = useGetAccountBalance()
     const { publicKey} = useWallet();
  
@@ -24,7 +30,7 @@ const UnstakingForm = ({handleUnstake, stakingData, amountUnstake, setAmountUnst
 
     return (
         <section className='py-8 space-y-6 border rounded-lg px-8 bg-white shadow-lg w-full max-w-[700px]'>
-            <h2 className="text-center text-black text-3xl pt-3 pb-5 font-bold">Unstake Your LiquidVest Tokens</h2>
+            <h2 className="text-center text-black text-3xl pt-3 pb-5 font-bold">Unstake Your LQINV Tokens</h2>
             
             <div className="flex flex-col space-y-4 bg-gray-100 w-full py-4 px-4 rounded-md shadow-sm">
                 <div className="flex justify-between">
