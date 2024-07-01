@@ -20,7 +20,7 @@ const StakingForm = ({handleStake, amountIn, setAmountIn, stakingData}: IProps) 
 
     return (
         <section className='py-4 md:py-8 space-y-6 border rounded-lg px-4 md:px-8 bg-white shadow-lg w-full max-w-[700px]'>
-            <h2 className="text-center text-black text-xl md:text-3xl pt-3 pb-5 font-bold">Stake Your LiquidVest Tokens</h2>
+            <h2 className="text-center text-black text-xl md:text-3xl pt-3 pb-5 font-bold">Stake Your LiquidInVest Tokens</h2>
             <p className="text-center text-gray-700 text-xl">Earn <span className="bg-green-600 text-white rounded-md px-3">Sol</span> Rewards</p>
 
             <div className="flex flex-col space-y-4 bg-gray-100 w-full py-4 px-4 rounded-md shadow-sm">
