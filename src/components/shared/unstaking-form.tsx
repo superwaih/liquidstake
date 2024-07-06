@@ -50,7 +50,12 @@ const UnstakingForm = ({handleUnstake, stakingData, amountUnstake, setAmountUnst
                 </div>
                 <div className="flex justify-between">
                     <h3 className="text-gray-500 font-medium">Unstaked Balance:</h3>
+                    {
+                        !publicKey || !connection ?
+                        <p className="font-bold text-black text-lg md:text-xl">0</p> :
+
                     <p className="font-bold text-black text-lg md:text-xl">{formatBalance(balance)}</p>
+                    }
                 </div>
             </div>
 
