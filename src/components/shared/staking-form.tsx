@@ -5,8 +5,9 @@ import { useGetAccountBalance } from "../../../hooks/useGetBalance"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { formatBalance } from "../../../utils/constants";
 
-const StakingForm = ({handleStake, amountIn, setAmountIn, stakingData}) => {
+const StakingForm = ({handleStake, amountIn, setAmountIn, stakingData, fetchingStakingData}) => {
     const { balance } = useGetAccountBalance()
     const { connection } = useConnection()
     const { publicKey } = useWallet();
@@ -32,7 +33,7 @@ const StakingForm = ({handleStake, amountIn, setAmountIn, stakingData}) => {
                             :
                             <>
                                 <h3 className="text-gray-500 text-sm md:text-md font-medium">LiquidInvest Token Balance:</h3>
-                                <p className="font-bold text-black text-lg md:text-xl">{balance} LQINV</p>
+                                <p className="font-bold text-black text-lg md:text-xl">{formatBalance(balance)} LQINV</p>
                             </>
                     }
 
@@ -40,7 +41,24 @@ const StakingForm = ({handleStake, amountIn, setAmountIn, stakingData}) => {
                 </div>
                 <div className="flex justify-between">
                     <h3 className="text-gray-500 font-medium">Staked:</h3>
-                    <p className="font-bold text-black text-lg md:text-xl">{stakingData?.totalStaked}</p>
+                    {
+                        fetchingStakingData && stakingData === null ? 
+                        <div className="space-y-2.5 animate-pulse max-w-sm">
+                        fetching staked balance
+                       
+
+                    </div>
+                    : 
+
+                    <p className="font-bold text-black text-lg md:text-xl">{
+
+                        !publicKey || !connection ?
+
+                        "0" : formatBalance(stakingData?.totalStaked)
+                    }
+                    </p>
+
+                    }
                 </div>
             </div>
 

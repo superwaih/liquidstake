@@ -41,30 +41,41 @@ const FormsContainer = () => {
     const { publicKey, wallet, signTransaction, signMessage} = useWallet();
     const { currentMode, setCurrentMode } = useAppContext();
     const { toast } = useToast() // Initialize useToast
-
+    const [stakedSuccess, setStakedSuccess] = useState(false)
+    const[unstakedSuccess, setUnstakedSuccess] = useState(false)
    const {messageInfo,setMessageInfo} = useAppContext()
  
     const [amountIn, setAmountIn] = useState(0);
     const [amountUnstake, setAmountUnstake] = useState(0);
     const [stakingData, setStakingData] = useState<UserStakingInfo | null>(null);
-  ;
+    const [fetchingStakingData, setFetchStakingData] = useState(false)
+    const fetchData = async (publicKey: PublicKey) => {
+        setFetchStakingData(true)
+        try {
+          const response = await axios.get(ENDPOINT + '/user/' + MD5(publicKey.toBase58()));
+          setStakingData(response.data);
+        setFetchStakingData(false)
+        } catch (error) {
+        setFetchStakingData(false)
+
+          console.error("Error fetching data:", error);
+        }
+      };
 
     useEffect(() => {
         if (!connection || !publicKey) return;
         if (connection && publicKey) {
-            axios.get(ENDPOINT + '/user/' + MD5(publicKey?.toBase58()))
-                .then(response => {
-                    setStakingData(response.data);
-                })
+            fetchData(publicKey)
+           
         }
-    }, [connection, publicKey, messageInfo]);
+    }, [connection, publicKey, messageInfo, stakedSuccess, unstakedSuccess]);
 
     useEffect(() => {
         if (stakingData && stakingData.totalStaked > 0) {
             axios.get(ENDPOINT + '/get-pool/' + MD5(publicKey?.toBase58()).toString())
                 .then(response => {
                     // setStakingPoolData(response.data);
-                    console.log(response.data)
+                    // console.log(response.data)
                 })
         }
     }, [stakingData]);
@@ -121,7 +132,7 @@ const FormsContainer = () => {
             return;
           }
 
-
+setStakedSuccess(true)
         setMessageInfo({ isLoading: true, messageText: 'Processing stake transaction...', messageType: 'loading' });
        
         const transactionId = await transferToken(publicKey?.toBase58(), amountIn);
@@ -166,8 +177,11 @@ const FormsContainer = () => {
                         });
                     });
             }, 1500);
+
+setStakedSuccess(false)
         } else {
             setMessageInfo({ isLoading: false, messageText: 'Transaction failed', messageType: 'error' });
+            setStakedSuccess(false)
             toast({
                 title: "Error",
                 variant: "destructive",
@@ -194,6 +208,7 @@ const FormsContainer = () => {
               })
               return;
           }
+          setUnstakedSuccess(true)
         setMessageInfo({ isLoading: true, messageText: 'Processing transaction...', messageType: 'loading' });
         const res = await axios.get(ENDPOINT + `/get-signature/${publicKey?.toBase58()}/${amountIn}`)
         
@@ -225,6 +240,7 @@ const FormsContainer = () => {
         }).then(response => {
             setMessageInfo({ isLoading: false, messageText: 'Transaction successful', messageType: 'success' });
             setAmountUnstake(0);
+            setUnstakedSuccess(false)
             toast({
                 title: "Success",
                 description: "Unstake transaction completed successfully",
@@ -232,6 +248,8 @@ const FormsContainer = () => {
         }).catch(error => {
             const messageError = error.response.data.error || error.message.replace('Error: ', '') || 'Transaction failed';
             setMessageInfo({ isLoading: false, messageText: `Error: ${messageError}`, messageType: 'error' });
+            setUnstakedSuccess(false)
+            
             toast({
                 title: "Error",
                 variant: "destructive",
@@ -275,12 +293,14 @@ const FormsContainer = () => {
                 <div className='mt-12'>
                     {currentMode === 'staking' ?
                         <StakingForm
+                        fetchingStakingData={fetchingStakingData}
                             amountIn={amountIn}
                             stakingData={stakingData}
                             setAmountIn={setAmountIn}
                             handleStake={handleStake} />
                         :
                         <UnstakingForm
+                        fetchingStakingData={fetchingStakingData}
                             amountUnstake={amountUnstake}
                             setAmountUnstake={setAmountUnstake}
                             stakingData={stakingData}

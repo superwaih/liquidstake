@@ -7,7 +7,13 @@ export function isValidNumber(value : any) {
   return typeof value === 'number' && !isNaN(value) ||
          (typeof value === 'string' && value.trim() !== '' && !isNaN(Number(value)));
 }
-
+export function formatBalance(balance: string | number) {
+  if (Number(balance) >= 1000000) {
+      return (Number(balance) / 1000000).toFixed(1) + 'M';
+  } else {
+      return balance.toString();
+  }
+}
 export  const convertSecondsToTime = (seconds) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);

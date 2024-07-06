@@ -9,11 +9,12 @@ import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { useGetAccountBalance } from '../../../hooks/useGetBalance';
 import { useAppContext } from '../../../context/app-state';
 import { Shell } from 'lucide-react';
+import { formatBalance } from '../../../utils/constants';
 
-const UnstakingForm = ({handleUnstake, stakingData, amountUnstake, setAmountUnstake}) => {
+const UnstakingForm = ({handleUnstake, stakingData, amountUnstake, setAmountUnstake, fetchingStakingData}) => {
     const { balance } = useGetAccountBalance()
     const { publicKey} = useWallet();
- 
+    const { connection } = useConnection()
     const {messageInfo} = useAppContext()
 
 
@@ -29,11 +30,27 @@ const UnstakingForm = ({handleUnstake, stakingData, amountUnstake, setAmountUnst
             <div className="flex flex-col space-y-4 bg-gray-100 w-full py-4 px-4 rounded-md shadow-sm">
                 <div className="flex justify-between">
                     <h3 className="text-gray-500 font-medium">Staked Balance:</h3>
-                    <p className="font-bold text-black text-lg md:text-xl">{stakingData?.totalStaked}</p>
+                    {
+                        fetchingStakingData && stakingData === null ? 
+                        <div className="space-y-2.5 animate-pulse max-w-sm">
+                        fetching staked balance
+                       
+
+                    </div>
+                    : 
+
+                    <p className="font-bold text-black text-lg md:text-xl">{
+
+                        !publicKey || !connection ?
+
+                        "0" : formatBalance(stakingData?.totalStaked)
+                    }</p>
+
+                    }
                 </div>
                 <div className="flex justify-between">
                     <h3 className="text-gray-500 font-medium">Unstaked Balance:</h3>
-                    <p className="font-bold text-black text-lg md:text-xl">{balance}</p>
+                    <p className="font-bold text-black text-lg md:text-xl">{formatBalance(balance)}</p>
                 </div>
             </div>
 
