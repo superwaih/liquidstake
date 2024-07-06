@@ -8,10 +8,11 @@ export function isValidNumber(value : any) {
          (typeof value === 'string' && value.trim() !== '' && !isNaN(Number(value)));
 }
 export function formatBalance(balance: string | number) {
+  if(balance === null) return 0
   if (Number(balance) >= 1000000) {
       return (Number(balance) / 1000000).toFixed(1) + 'M';
   } else {
-      return balance.toString();
+      return balance
   }
 }
 export  const convertSecondsToTime = (seconds) => {
